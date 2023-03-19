@@ -1,13 +1,17 @@
 .card {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
   justify-items: center;
   align-items: center;
+  padding: 5px;
   border: 1px solid #646cff;
   border-radius: 8px;
 
   &__image {
-    max-width: 50%;
+    max-width: 80%;
+    @media (max-width: 430px) {
+      max-width: 50%;
+    }
   }
 
   &__info {
