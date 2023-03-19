@@ -1,0 +1,59 @@
+.card {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  justify-items: center;
+  align-items: center;
+  border: 1px solid #646cff;
+  border-radius: 8px;
+
+  &__image {
+    max-width: 50%;
+  }
+
+  &__info {
+    display: grid;
+    gap: 5px;
+    padding: 5px;
+    p {
+      margin: 0;
+    }
+  }
+
+  &__title {
+    margin: 2px 0;
+    font-size: 20px;
+    justify-self: center;
+    text-transform: capitalize;
+  }
+
+  &__item {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__text {
+    font-size: 20px;
+    text-transform: capitalize;
+    color: #646cff;
+  }
+
+  &__discount,
+  &__brand,
+  &__category,
+  &__rating,
+  &__price {
+    margin: 2px 0;
+    font-size: 18px;
+    text-transform: capitalize;
+    font-style: italic;
+    color: #040627;
+  }
+
+  &__description {
+    font-size: 16px;
+    text-transform: capitalize;
+    font-style: italic;
+  }
+}
