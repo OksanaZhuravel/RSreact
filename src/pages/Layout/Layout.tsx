@@ -1,43 +1,33 @@
-// import { Link, Outlet } from 'react-router-dom';
+import { Component } from 'react';
+import SearchBar from '../../components/SearchBar/SearchBar';
+import Card from '../../components/Card/Card';
+import data from '../../assets/data.json';
 
-// const Layout = () => {
-//   return (
-//     <>
-//       <form id="search-form" role="search">
-//         <input id="q" aria-label="Search" placeholder="Search" type="search" name="q" />
-//       </form>
-//       <nav>
-//         <ul>
-//           <li>
-//             <Link to={`/about`}>About</Link>
-//           </li>
-//         </ul>
-//       </nav>
-//       <h3>Layout</h3>
-//       <Outlet />
-//     </>
-//   );
-// };
-// export default Layout;
-
-import React from 'react';
-
-export default class Layout extends React.Component {
-  state = {
-    text: 'Layout',
-  };
-  UNSAFE_componentWillMount() {
-    console.log('componentWillMount');
-  }
-  componentDidMount() {
-    console.log('componentDidMount');
-    setTimeout(() => this.setState({ text: 'Обновленный React-компонент' }), 1000);
-  }
-  componentDidUpdate() {
-    console.log('componentDidUpdate');
-  }
+class Layout extends Component {
   render() {
-    console.log('render');
-    return <h1>{this.state.text}</h1>;
+    return (
+      <div className="main">
+        <SearchBar />
+        <div className="main__cards" data-testid="cards-list">
+          {data.map((item) => {
+            return (
+              <Card
+                title={item.title}
+                key={item.id}
+                thumbnail={item.thumbnail}
+                rating={item.rating}
+                price={item.price}
+                description={item.description}
+                discountPercentage={item.discountPercentage}
+                category={item.category}
+                brand={item.brand}
+              />
+            );
+          })}
+        </div>
+      </div>
+    );
   }
 }
+
+export default Layout;
