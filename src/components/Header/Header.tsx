@@ -20,6 +20,7 @@ class Header extends Component<HeaderProps, HeaderState> {
     const pages = {
       '/': 'Shop',
       '/about': 'About',
+      '/form': 'Form',
     };
     const titleName = `${pages[location.pathname as keyof object]}`;
     this.setState({ title: titleName });

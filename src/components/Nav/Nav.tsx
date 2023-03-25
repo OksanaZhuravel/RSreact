@@ -16,6 +16,9 @@ class Nav extends Component<NavProps> {
           <li className="nav__item" onClick={this.props.handleClick}>
             <NavLink to="/about">About</NavLink>
           </li>
+          <li className="nav__item" onClick={this.props.handleClick}>
+            <NavLink to="/form">Form</NavLink>
+          </li>
         </ul>
       </nav>
     );

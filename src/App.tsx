@@ -14,6 +14,7 @@ class App extends Component {
           <Routes>
             <Route path="/" element={<Layout />} />
             <Route path="/about" element={<About />} />
+            <Route path="/form" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
