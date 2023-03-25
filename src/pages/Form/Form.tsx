@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
-
-class Form extends Component {
+import Notification from './Notification ';
+interface State {
+  isSubmitted: boolean;
+}
+class Form extends Component<object, State> {
   nameInputRef = React.createRef<HTMLInputElement>();
   surnamesRef = React.createRef<HTMLInputElement>();
   dateInputRef = React.createRef<HTMLInputElement>();
@@ -10,7 +13,10 @@ class Form extends Component {
   radioNoRef = React.createRef<HTMLInputElement>();
   fileInputRef = React.createRef<HTMLInputElement>();
   cardsListRef = React.createRef<HTMLDivElement>();
-
+  constructor(props: object) {
+    super(props);
+    this.state = { isSubmitted: false };
+  }
   handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nameInput = this.nameInputRef.current;
@@ -22,51 +28,55 @@ class Form extends Component {
     const radioNo = this.radioNoRef.current;
     const fileInput = this.fileInputRef.current;
     const cardsList = this.cardsListRef.current;
+    const card = document.createElement('div');
+    card.className = 'card';
     if (nameInput && nameInput.value.trim()) {
-      const card = document.createElement('div');
-      card.innerText = `Name: ${nameInput.value.trim()}`;
-      cardsList?.appendChild(card);
+      const name = document.createElement('div');
+      name.innerText = `Name: ${nameInput.value.trim()}`;
+      card.appendChild(name);
       nameInput.value = '';
     }
     if (surnamesInput && surnamesInput.value.trim()) {
-      const card = document.createElement('div');
-      card.innerText = `Surname: ${surnamesInput.value.trim()}`;
-      cardsList?.appendChild(card);
+      const surname = document.createElement('div');
+      surname.innerText = `Surname: ${surnamesInput.value.trim()}`;
+      card.appendChild(surname);
       surnamesInput.value = '';
     }
+
     if (dateInput && dateInput.value.trim()) {
-      const card = document.createElement('div');
-      card.innerText = `Birthday: ${dateInput.value.trim()}`;
-      cardsList?.appendChild(card);
+      const birthday = document.createElement('div');
+      birthday.innerText = `Birthday: ${dateInput.value.trim()}`;
+      card.appendChild(birthday);
       dateInput.value = '';
     }
 
     if (select && select.value.trim()) {
-      const card = document.createElement('div');
-      card.innerText = `Favorite color: ${select.value.trim()}`;
-      cardsList?.appendChild(card);
+      const color = document.createElement('div');
+      color.innerText = `Favorite color: ${select.value.trim()}`;
+      card.appendChild(color);
       select.value = '';
     }
 
     if (checkbox && checkbox.checked) {
-      const card = document.createElement('div');
-      card.className = 'chek';
-      card.innerText = 'Consent has been obtained for the use of the name';
-      cardsList?.appendChild(card);
+      const consent = document.createElement('div');
+      consent.className = 'consent';
+      consent.innerText = 'Consent has been obtained for the use of the name';
+      card.appendChild(consent);
       checkbox.checked = false;
     }
+
     if (radioYes && radioYes.checked) {
-      const card = document.createElement('div');
-      card.innerText = 'Gender: Male';
-      cardsList?.appendChild(card);
+      const gender = document.createElement('div');
+      gender.innerText = 'Gender: Male';
+      card.appendChild(gender);
       radioYes.checked = false;
       if (radioNo) {
         radioNo.checked = false;
       }
     } else if (radioNo && radioNo.checked) {
-      const card = document.createElement('div');
-      card.innerText = 'Gender: Female';
-      cardsList?.appendChild(card);
+      const gender = document.createElement('div');
+      gender.innerText = 'Gender: Female';
+      card.appendChild(gender);
       if (radioYes) {
         radioYes.checked = false;
       }
@@ -74,17 +84,26 @@ class Form extends Component {
     }
 
     if (fileInput && fileInput.files && fileInput.files[0]) {
-      const card = document.createElement('div');
-      card.innerText = `Avatar: ${fileInput.files[0].name}`;
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.innerText = `Avatar: ${fileInput.files[0].name}`;
       const image = document.createElement('img');
       image.src = URL.createObjectURL(fileInput.files[0]);
-      cardsList?.appendChild(card);
-      cardsList?.appendChild(image);
+      card.appendChild(avatar);
+      card.appendChild(image);
       fileInput.value = '';
     }
+    cardsList?.appendChild(card);
+    const form = event.currentTarget;
+    form.reset();
+    this.setState({ isSubmitted: true });
+    setTimeout(() => {
+      this.setState({ isSubmitted: false });
+    }, 1000);
   };
 
   render() {
+    const { isSubmitted } = this.state;
     return (
       <div>
         <form className="form-container" onSubmit={this.handleSubmit}>
@@ -129,7 +148,8 @@ class Form extends Component {
           </div>
           <button type="submit">Submit</button>
         </form>
-        <div className="cards-list" ref={this.cardsListRef}></div>
+        {isSubmitted && <Notification />}
+        <div className="cards" ref={this.cardsListRef}></div>
       </div>
     );
   }
