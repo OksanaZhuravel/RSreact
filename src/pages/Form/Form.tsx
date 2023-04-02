@@ -1,158 +1,159 @@
-import React, { Component } from 'react';
 import Notification from './Notification ';
-interface State {
-  isSubmitted: boolean;
+
+import { useEffect, useState } from 'react';
+
+interface FormData {
+  name: string;
+  surname: string;
+  birthday: string;
+  favoriteColor: string;
+  allowNameUsage: boolean;
+  gender: string;
+  file: File | null;
 }
-class Form extends Component<object, State> {
-  nameInputRef = React.createRef<HTMLInputElement>();
-  surnamesRef = React.createRef<HTMLInputElement>();
-  dateInputRef = React.createRef<HTMLInputElement>();
-  selectRef = React.createRef<HTMLSelectElement>();
-  checkboxRef = React.createRef<HTMLInputElement>();
-  radioYesRef = React.createRef<HTMLInputElement>();
-  radioNoRef = React.createRef<HTMLInputElement>();
-  fileInputRef = React.createRef<HTMLInputElement>();
-  cardsListRef = React.createRef<HTMLDivElement>();
-  constructor(props: object) {
-    super(props);
-    this.state = { isSubmitted: false };
-  }
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const nameInput = this.nameInputRef.current;
-    const surnamesInput = this.surnamesRef.current;
-    const dateInput = this.dateInputRef.current;
-    const select = this.selectRef.current;
-    const checkbox = this.checkboxRef.current;
-    const radioYes = this.radioYesRef.current;
-    const radioNo = this.radioNoRef.current;
-    const fileInput = this.fileInputRef.current;
-    const cardsList = this.cardsListRef.current;
-    const card = document.createElement('div');
-    card.className = 'card';
-    if (nameInput && nameInput.value.trim()) {
-      const name = document.createElement('div');
-      name.innerText = `Name: ${nameInput.value.trim()}`;
-      card.appendChild(name);
-      nameInput.value = '';
-    }
-    if (surnamesInput && surnamesInput.value.trim()) {
-      const surname = document.createElement('div');
-      surname.innerText = `Surname: ${surnamesInput.value.trim()}`;
-      card.appendChild(surname);
-      surnamesInput.value = '';
-    }
 
-    if (dateInput && dateInput.value.trim()) {
-      const birthday = document.createElement('div');
-      birthday.innerText = `Birthday: ${dateInput.value.trim()}`;
-      card.appendChild(birthday);
-      dateInput.value = '';
-    }
+const Form = (): JSX.Element => {
+  const [isSubmitFormData, setIsSubmitFormData] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    surname: '',
+    birthday: '',
+    favoriteColor: '',
+    allowNameUsage: false,
+    gender: '',
+    file: null,
+  });
 
-    if (select && select.value.trim()) {
-      const color = document.createElement('div');
-      color.innerText = `Favorite color: ${select.value.trim()}`;
-      card.appendChild(color);
-      select.value = '';
-    }
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const { name, value, type, checked, files } = event.target;
+    const newValue = type === 'checkbox' ? checked : files ? files[0] : value;
 
-    if (checkbox && checkbox.checked) {
-      const consent = document.createElement('div');
-      consent.className = 'consent';
-      consent.innerText = 'Consent has been obtained for the use of the name';
-      card.appendChild(consent);
-      checkbox.checked = false;
-    }
-
-    if (radioYes && radioYes.checked) {
-      const gender = document.createElement('div');
-      gender.innerText = 'Gender: Male';
-      card.appendChild(gender);
-      radioYes.checked = false;
-      if (radioNo) {
-        radioNo.checked = false;
-      }
-    } else if (radioNo && radioNo.checked) {
-      const gender = document.createElement('div');
-      gender.innerText = 'Gender: Female';
-      card.appendChild(gender);
-      if (radioYes) {
-        radioYes.checked = false;
-      }
-      radioNo.checked = false;
-    }
-
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-      const avatar = document.createElement('div');
-      avatar.className = 'avatar';
-      avatar.innerText = `Avatar: ${fileInput.files[0].name}`;
-      const image = document.createElement('img');
-      image.src = URL.createObjectURL(fileInput.files[0]);
-      card.appendChild(avatar);
-      card.appendChild(image);
-      fileInput.value = '';
-    }
-    cardsList?.appendChild(card);
-    const form = event.currentTarget;
-    form.reset();
-    this.setState({ isSubmitted: true });
-    setTimeout(() => {
-      this.setState({ isSubmitted: false });
-    }, 1000);
+    setFormData({
+      ...formData,
+      [name]: newValue,
+    });
   };
 
-  render() {
-    const { isSubmitted } = this.state;
-    return (
-      <div>
-        <form className="form-container" onSubmit={this.handleSubmit}>
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    console.log(formData);
+    setIsSubmitted(true);
+    setIsSubmitFormData(true);
+  };
+
+  useEffect(() => {
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    if (isSubmitted) {
+      timerId = setTimeout(() => {
+        setIsSubmitted(false);
+      }, 3000);
+    }
+
+    return () => {
+      if (timerId) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [isSubmitted]);
+  return (
+    <>
+      <form onSubmit={handleSubmit} className="form-container">
+        <label>
+          Name:
+          <input type="text" name="name" value={formData.name} onChange={handleInputChange} />
+        </label>
+        <label>
+          Surname:
+          <input type="text" name="surname" value={formData.surname} onChange={handleInputChange} />
+        </label>
+        <label>
+          Birthday:
+          <input
+            type="date"
+            name="birthday"
+            value={formData.birthday}
+            onChange={handleInputChange}
+          />
+        </label>
+        <label>
+          Favorite color:
+          <select name="favoriteColor" value={formData.favoriteColor} onChange={handleSelectChange}>
+            <option value=""></option>
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+          </select>
+        </label>
+        <label className="checkbox">
+          Allow name usage:
+          <input
+            type="checkbox"
+            name="allowNameUsage"
+            checked={formData.allowNameUsage}
+            onChange={handleInputChange}
+          />
+        </label>
+        <label className="gender-label">
+          Gender:
           <label>
-            Your name:
-            <input type="text" ref={this.nameInputRef} required />
+            <input
+              type="radio"
+              name="gender"
+              value="male"
+              checked={formData.gender === 'male'}
+              onChange={handleInputChange}
+            />
+            Male
           </label>
           <label>
-            Your surname:
-            <input type="text" ref={this.surnamesRef} required />
+            <input
+              type="radio"
+              name="gender"
+              value="female"
+              checked={formData.gender === 'female'}
+              onChange={handleInputChange}
+            />
+            Female
           </label>
-          <label>
-            Your birthday:
-            <input type="date" ref={this.dateInputRef} required />
-          </label>
-          <label>
-            Choose your favorite color:
-            <select ref={this.selectRef} required>
-              <option value=""></option>
-              <option value="red">Red</option>
-              <option value="Blue ">Blue </option>
-              <option value="Green">Green</option>
-              <option value="Yellow ">Yellow </option>
-            </select>
-          </label>
-          <label className="checkbox">
-            Can I use your name in our application?:
-            <input type="checkbox" ref={this.checkboxRef} />
-          </label>
-          <div className="gender">
-            <span>Gender</span>
-            <div className="gender-label">
-              <label>Male</label>
-              <input type="radio" name="gender" ref={this.radioYesRef} />
-              <label>Female</label>
-              <input type="radio" name="gender" ref={this.radioNoRef} />
+        </label>
+        <label>
+          Upload a file:
+          <input type="file" name="file" onChange={handleInputChange} />
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+      {isSubmitted && <Notification />}
+      {isSubmitFormData && formData ? (
+        <div className="cards">
+          <div className="card">
+            <div>Name: {formData.name}</div>
+            <div>Surname: {formData.surname}</div>
+            <div>Birthday: {formData.birthday}</div>
+            <div>Favorite color: {formData.favoriteColor}</div>
+            <div>
+              Can I use your name in our application?: {formData.allowNameUsage ? 'Yes' : 'No'}
             </div>
+            <div>Gender: {formData.gender}</div>
+            {formData.file && (
+              <div className="avatar">
+                <img src={URL.createObjectURL(formData.file)} alt="Selected file" />
+              </div>
+            )}
           </div>
-          <div>
-            <label>You can upload your photo</label>
-            <input type="file" accept="image/*" title="Choose file" ref={this.fileInputRef} />
-          </div>
-          <button type="submit">Submit</button>
-        </form>
-        {isSubmitted && <Notification />}
-        <div className="cards" ref={this.cardsListRef}></div>
-      </div>
-    );
-  }
-}
+        </div>
+      ) : null}
+    </>
+  );
+};
 
 export default Form;
