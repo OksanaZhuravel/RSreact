@@ -1,158 +1,128 @@
-import React, { Component } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import Notification from './Notification ';
-interface State {
-  isSubmitted: boolean;
+
+interface FormData {
+  name: string;
+  surname: string;
+  birthday: string;
+  favoriteColor: string;
+  allowNameUsage: boolean;
+  gender: string;
+  file: FileList | null;
 }
-class Form extends Component<object, State> {
-  nameInputRef = React.createRef<HTMLInputElement>();
-  surnamesRef = React.createRef<HTMLInputElement>();
-  dateInputRef = React.createRef<HTMLInputElement>();
-  selectRef = React.createRef<HTMLSelectElement>();
-  checkboxRef = React.createRef<HTMLInputElement>();
-  radioYesRef = React.createRef<HTMLInputElement>();
-  radioNoRef = React.createRef<HTMLInputElement>();
-  fileInputRef = React.createRef<HTMLInputElement>();
-  cardsListRef = React.createRef<HTMLDivElement>();
-  constructor(props: object) {
-    super(props);
-    this.state = { isSubmitted: false };
-  }
-  handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const nameInput = this.nameInputRef.current;
-    const surnamesInput = this.surnamesRef.current;
-    const dateInput = this.dateInputRef.current;
-    const select = this.selectRef.current;
-    const checkbox = this.checkboxRef.current;
-    const radioYes = this.radioYesRef.current;
-    const radioNo = this.radioNoRef.current;
-    const fileInput = this.fileInputRef.current;
-    const cardsList = this.cardsListRef.current;
-    const card = document.createElement('div');
-    card.className = 'card';
-    if (nameInput && nameInput.value.trim()) {
-      const name = document.createElement('div');
-      name.innerText = `Name: ${nameInput.value.trim()}`;
-      card.appendChild(name);
-      nameInput.value = '';
-    }
-    if (surnamesInput && surnamesInput.value.trim()) {
-      const surname = document.createElement('div');
-      surname.innerText = `Surname: ${surnamesInput.value.trim()}`;
-      card.appendChild(surname);
-      surnamesInput.value = '';
-    }
 
-    if (dateInput && dateInput.value.trim()) {
-      const birthday = document.createElement('div');
-      birthday.innerText = `Birthday: ${dateInput.value.trim()}`;
-      card.appendChild(birthday);
-      dateInput.value = '';
-    }
+const Form = (): JSX.Element => {
+  const {
+    register,
+    handleSubmit,
 
-    if (select && select.value.trim()) {
-      const color = document.createElement('div');
-      color.innerText = `Favorite color: ${select.value.trim()}`;
-      card.appendChild(color);
-      select.value = '';
-    }
+    formState: { errors },
+  } = useForm<FormData>();
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [cards, setCards] = useState<FormData[]>([]);
 
-    if (checkbox && checkbox.checked) {
-      const consent = document.createElement('div');
-      consent.className = 'consent';
-      consent.innerText = 'Consent has been obtained for the use of the name';
-      card.appendChild(consent);
-      checkbox.checked = false;
-    }
-
-    if (radioYes && radioYes.checked) {
-      const gender = document.createElement('div');
-      gender.innerText = 'Gender: Male';
-      card.appendChild(gender);
-      radioYes.checked = false;
-      if (radioNo) {
-        radioNo.checked = false;
-      }
-    } else if (radioNo && radioNo.checked) {
-      const gender = document.createElement('div');
-      gender.innerText = 'Gender: Female';
-      card.appendChild(gender);
-      if (radioYes) {
-        radioYes.checked = false;
-      }
-      radioNo.checked = false;
-    }
-
-    if (fileInput && fileInput.files && fileInput.files[0]) {
-      const avatar = document.createElement('div');
-      avatar.className = 'avatar';
-      avatar.innerText = `Avatar: ${fileInput.files[0].name}`;
-      const image = document.createElement('img');
-      image.src = URL.createObjectURL(fileInput.files[0]);
-      card.appendChild(avatar);
-      card.appendChild(image);
-      fileInput.value = '';
-    }
-    cardsList?.appendChild(card);
-    const form = event.currentTarget;
-    form.reset();
-    this.setState({ isSubmitted: true });
-    setTimeout(() => {
-      this.setState({ isSubmitted: false });
-    }, 1000);
+  const onSubmit = (data: FormData) => {
+    console.log(data);
+    setCards((cards) => [...cards, data]);
+    setIsSubmitted(true);
   };
+  const validateNotEmpty = (value: string) => {
+    if (!value) {
+      return 'This field is required';
+    }
+    return true;
+  };
+  const validateFile = (value: FileList | null) => {
+    if (!value || value.length === 0) {
+      return 'File is required';
+    }
+    return true;
+  };
+  useEffect(() => {
+    if (isSubmitted) {
+      const timeoutId = setTimeout(() => {
+        setIsSubmitted(false);
+      }, 3000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isSubmitted]);
 
-  render() {
-    const { isSubmitted } = this.state;
-    return (
-      <div>
-        <form className="form-container" onSubmit={this.handleSubmit}>
+  return (
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="form-container">
+        <label>
+          Name:
+          <input type="text" {...register('name', { validate: validateNotEmpty })} />
+          {errors.name && <p className="errors">{errors.name.message}</p>}
+        </label>
+        <label>
+          Surname:
+          <input type="text" {...register('surname', { validate: validateNotEmpty })} />
+          {errors.surname && <p className="errors">{errors.surname.message}</p>}
+        </label>
+        <label>
+          Birthday:
+          <input type="date" {...register('birthday', { validate: validateNotEmpty })} />
+          {errors.birthday && <p className="errors">{errors.birthday.message}</p>}
+        </label>
+        <label>
+          Favorite color:
+          <select {...register('favoriteColor', { validate: validateNotEmpty })}>
+            <option value=""></option>
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+          </select>
+          {errors.favoriteColor && <p className="errors">{errors.favoriteColor.message}</p>}
+        </label>
+        <label className="checkbox">
+          Allow name usage:
+          <input type="checkbox" {...register('allowNameUsage')} />
+        </label>
+        <label className="gender-label">
+          Gender:
           <label>
-            Your name:
-            <input type="text" ref={this.nameInputRef} required />
+            <input type="radio" value="male" {...register('gender')} />
+            Male
           </label>
           <label>
-            Your surname:
-            <input type="text" ref={this.surnamesRef} required />
+            <input type="radio" value="female" {...register('gender')} />
+            Female
           </label>
-          <label>
-            Your birthday:
-            <input type="date" ref={this.dateInputRef} required />
-          </label>
-          <label>
-            Choose your favorite color:
-            <select ref={this.selectRef} required>
-              <option value=""></option>
-              <option value="red">Red</option>
-              <option value="Blue ">Blue </option>
-              <option value="Green">Green</option>
-              <option value="Yellow ">Yellow </option>
-            </select>
-          </label>
-          <label className="checkbox">
-            Can I use your name in our application?:
-            <input type="checkbox" ref={this.checkboxRef} />
-          </label>
-          <div className="gender">
-            <span>Gender</span>
-            <div className="gender-label">
-              <label>Male</label>
-              <input type="radio" name="gender" ref={this.radioYesRef} />
-              <label>Female</label>
-              <input type="radio" name="gender" ref={this.radioNoRef} />
+        </label>
+        <label>
+          Upload a file:
+          <input type="file" {...register('file', { validate: validateFile })} />
+          {errors.file && <p className="errors">{errors.file.message}</p>}
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+      {isSubmitted && <Notification />}
+      {cards.length > 0 ? (
+        <div className="cards">
+          {cards.map((card, index) => (
+            <div className="card" key={index}>
+              <div>Name: {card.name}</div>
+              <div>Surname: {card.surname}</div>
+              <div>Birthday: {card.birthday}</div>
+              <div>Favorite color: {card.favoriteColor}</div>
+              <div>
+                Can I use your name in our application?: {card.allowNameUsage ? 'Yes' : 'No'}
+              </div>
+              <div>Gender: {card.gender}</div>
+              {card.file && (
+                <div className="avatar">
+                  <img src={URL.createObjectURL(card.file[0])} alt="Selected file" />
+                </div>
+              )}
             </div>
-          </div>
-          <div>
-            <label>You can upload your photo</label>
-            <input type="file" accept="image/*" title="Choose file" ref={this.fileInputRef} />
-          </div>
-          <button type="submit">Submit</button>
-        </form>
-        {isSubmitted && <Notification />}
-        <div className="cards" ref={this.cardsListRef}></div>
-      </div>
-    );
-  }
-}
+          ))}
+        </div>
+      ) : null}
+    </>
+  );
+};
 
 export default Form;
