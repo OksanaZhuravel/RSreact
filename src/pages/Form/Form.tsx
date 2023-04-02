@@ -1,5 +1,6 @@
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import Notification from './Notification ';
-import { useEffect, useState } from 'react';
 
 interface FormData {
   name: string;
@@ -8,147 +9,106 @@ interface FormData {
   favoriteColor: string;
   allowNameUsage: boolean;
   gender: string;
-  file: File | null;
+  file: FileList | null;
 }
 
 const Form = (): JSX.Element => {
-  const [isSubmitFormData, setIsSubmitFormData] = useState<boolean>(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>();
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    surname: '',
-    birthday: '',
-    favoriteColor: '',
-    allowNameUsage: false,
-    gender: '',
-    file: null,
-  });
+  const [cards, setCards] = useState<FormData[]>([]);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const { name, value, type, checked, files } = event.target;
-    const newValue = type === 'checkbox' ? checked : files ? files[0] : value;
-
-    setFormData({
-      ...formData,
-      [name]: newValue,
-    });
-  };
-
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
-    setFormData({
-      ...formData,
-      [event.target.name]: event.target.value,
-    });
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    console.log(formData);
+  const onSubmit = (data: FormData) => {
+    console.log(data);
+    setCards((cards) => [...cards, data]);
     setIsSubmitted(true);
-    setIsSubmitFormData(true);
   };
-
-  useEffect(() => {
-    let timerId: ReturnType<typeof setTimeout> | null = null;
-
-    if (isSubmitted) {
-      timerId = setTimeout(() => {
-        setIsSubmitted(false);
-      }, 3000);
+  const validateNotEmpty = (value: string) => {
+    if (!value) {
+      return 'This field is required';
     }
-
-    return () => {
-      if (timerId) {
-        clearTimeout(timerId);
-      }
-    };
-  }, [isSubmitted]);
+    return true;
+  };
+  const validateFile = (value: FileList | null) => {
+    if (!value || value.length === 0) {
+      return 'File is required';
+    }
+    return true;
+  };
   return (
     <>
-      <form onSubmit={handleSubmit} className="form-container">
+      <form onSubmit={handleSubmit(onSubmit)} className="form-container">
         <label>
           Name:
-          <input type="text" name="name" value={formData.name} onChange={handleInputChange} />
+          <input type="text" {...register('name', { validate: validateNotEmpty })} />
+          {errors.name && <p className="errors">{errors.name.message}</p>}
         </label>
         <label>
           Surname:
-          <input type="text" name="surname" value={formData.surname} onChange={handleInputChange} />
+          <input type="text" {...register('surname', { validate: validateNotEmpty })} />
+          {errors.surname && <p className="errors">{errors.surname.message}</p>}
         </label>
         <label>
           Birthday:
-          <input
-            type="date"
-            name="birthday"
-            value={formData.birthday}
-            onChange={handleInputChange}
-          />
+          <input type="date" {...register('birthday', { validate: validateNotEmpty })} />
+          {errors.birthday && <p className="errors">{errors.birthday.message}</p>}
         </label>
         <label>
           Favorite color:
-          <select name="favoriteColor" value={formData.favoriteColor} onChange={handleSelectChange}>
+          <select {...register('favoriteColor', { validate: validateNotEmpty })}>
             <option value=""></option>
             <option value="red">Red</option>
             <option value="blue">Blue</option>
             <option value="green">Green</option>
             <option value="yellow">Yellow</option>
           </select>
+          {errors.favoriteColor && <p className="errors">{errors.favoriteColor.message}</p>}
         </label>
         <label className="checkbox">
           Allow name usage:
-          <input
-            type="checkbox"
-            name="allowNameUsage"
-            checked={formData.allowNameUsage}
-            onChange={handleInputChange}
-          />
+          <input type="checkbox" {...register('allowNameUsage')} />
         </label>
         <label className="gender-label">
           Gender:
           <label>
-            <input
-              type="radio"
-              name="gender"
-              value="male"
-              checked={formData.gender === 'male'}
-              onChange={handleInputChange}
-            />
+            <input type="radio" value="male" {...register('gender')} />
             Male
           </label>
           <label>
-            <input
-              type="radio"
-              name="gender"
-              value="female"
-              checked={formData.gender === 'female'}
-              onChange={handleInputChange}
-            />
+            <input type="radio" value="female" {...register('gender')} />
             Female
           </label>
         </label>
         <label>
           Upload a file:
-          <input type="file" name="file" onChange={handleInputChange} />
+          <input type="file" {...register('file', { validate: validateFile })} />
+          {errors.file && <p className="errors">{errors.file.message}</p>}
         </label>
         <button type="submit">Submit</button>
       </form>
       {isSubmitted && <Notification />}
-      {isSubmitFormData && formData ? (
+      {cards.length > 0 ? (
         <div className="cards">
-          <div className="card">
-            <div>Name: {formData.name}</div>
-            <div>Surname: {formData.surname}</div>
-            <div>Birthday: {formData.birthday}</div>
-            <div>Favorite color: {formData.favoriteColor}</div>
-            <div>
-              Can I use your name in our application?: {formData.allowNameUsage ? 'Yes' : 'No'}
-            </div>
-            <div>Gender: {formData.gender}</div>
-            {formData.file && (
-              <div className="avatar">
-                <img src={URL.createObjectURL(formData.file)} alt="Selected file" />
+          {cards.map((card, index) => (
+            <div className="card" key={index}>
+              <div>Name: {card.name}</div>
+              <div>Surname: {card.surname}</div>
+              <div>Birthday: {card.birthday}</div>
+              <div>Favorite color: {card.favoriteColor}</div>
+              <div>
+                Can I use your name in our application?: {card.allowNameUsage ? 'Yes' : 'No'}
               </div>
-            )}
-          </div>
+              <div>Gender: {card.gender}</div>
+              {card.file && (
+                <div className="avatar">
+                  <img src={URL.createObjectURL(card.file[0])} alt="Selected file" />
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       ) : null}
     </>
