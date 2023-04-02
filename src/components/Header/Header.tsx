@@ -1,38 +1,31 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Nav from '../../components/Nav/Nav';
 
-interface HeaderState {
-  title: string;
-}
+function Header() {
+  const location = useLocation();
+  const [title, setTitle] = useState<string>('');
 
-type HeaderProps = {
-  [key: string]: never;
-};
-
-class Header extends Component<HeaderProps, HeaderState> {
-  constructor(props: HeaderProps) {
-    super(props);
-    this.state = {
-      title: location.pathname === '/' ? 'Shop' : '',
-    };
-  }
-  updatePage = () => {
+  useEffect(() => {
     const pages = {
       '/': 'Shop',
       '/about': 'About',
       '/form': 'Form',
     };
-    const titleName = `${pages[location.pathname as keyof object]}`;
-    this.setState({ title: titleName });
+    const titleName = pages[location.pathname as keyof typeof pages];
+    setTitle(titleName || '');
+  }, [location.pathname]);
+
+  const updatePage = () => {
+    setTitle(location.pathname === '/' ? 'Shop' : '');
   };
-  render() {
-    return (
-      <header className="header">
-        <Nav handleClick={this.updatePage} />
-        <p className="header__title">{this.state.title}</p>
-      </header>
-    );
-  }
+
+  return (
+    <header className="header">
+      <Nav handleClick={updatePage} />
+      <p className="header__title">{title}</p>
+    </header>
+  );
 }
 
 export default Header;
