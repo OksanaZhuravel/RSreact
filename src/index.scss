@@ -135,3 +135,13 @@ button:focus-visible {
     border-radius: 8px;
   }
 }
+@import '/src/pages/Form/Form.scss';
+.notification {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  color: #d83ad3;
+  font-size: 25px;
+  font-weight: bold;
+  padding: 15px 0;
+}
