@@ -1,5 +1,4 @@
 import Notification from './Notification ';
-
 import { useEffect, useState } from 'react';
 
 interface FormData {
