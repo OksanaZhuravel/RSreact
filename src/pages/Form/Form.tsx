@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Notification from './Notification ';
 
@@ -16,6 +16,7 @@ const Form = (): JSX.Element => {
   const {
     register,
     handleSubmit,
+
     formState: { errors },
   } = useForm<FormData>();
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -38,6 +39,15 @@ const Form = (): JSX.Element => {
     }
     return true;
   };
+  useEffect(() => {
+    if (isSubmitted) {
+      const timeoutId = setTimeout(() => {
+        setIsSubmitted(false);
+      }, 3000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isSubmitted]);
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className="form-container">
