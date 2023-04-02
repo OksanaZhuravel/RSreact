@@ -1,56 +1,42 @@
-import { Component, FormEvent } from 'react';
+import { useState, useEffect } from 'react';
 
-type SearchBarProps = {
-  [key: string]: never;
-};
-interface SearchBarState {
-  searchValue: string;
-}
+function SearchBar() {
+  const [searchValue, setSearchValue] = useState<string>('');
 
-class SearchBar extends Component<SearchBarProps, SearchBarState> {
-  constructor(props: SearchBarProps) {
-    super(props);
-    this.state = {
-      searchValue: '',
-    };
-  }
-
-  componentDidMount() {
+  useEffect(() => {
     const searchValue = localStorage.getItem('searchValue');
     if (searchValue) {
-      this.setState({ searchValue });
+      setSearchValue(searchValue);
     }
-  }
+  }, []);
 
-  componentWillUnmount() {
-    localStorage.setItem('searchValue', this.state.searchValue);
-  }
+  useEffect(() => {
+    localStorage.setItem('searchValue', searchValue);
+  }, [searchValue]);
 
-  handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ searchValue: event.target.value });
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value);
   };
 
-  handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('searchValue:', this.state.searchValue);
+    console.log('searchValue:', searchValue);
   };
 
-  render() {
-    return (
-      <form className="search" onSubmit={this.handleSubmit}>
-        <input
-          type="text"
-          className="search__input"
-          placeholder="Search"
-          value={this.state.searchValue}
-          onChange={this.handleInputChange}
-        />
-        <button type="submit" className="search__button">
-          search
-        </button>
-      </form>
-    );
-  }
+  return (
+    <form className="search" onSubmit={handleSubmit}>
+      <input
+        type="text"
+        className="search__input"
+        placeholder="Search"
+        value={searchValue}
+        onChange={handleInputChange}
+      />
+      <button type="submit" className="search__button">
+        search
+      </button>
+    </form>
+  );
 }
 
 export default SearchBar;
