@@ -1,10 +1,6 @@
-import { DataApi } from '../../types/types';
-import './card.scss';
+import { CardProps } from '../../types/types';
 import Modal from '../../components/Modal/Modal';
 import { useState } from 'react';
-interface CardProps {
-  item: DataApi;
-}
 
 const Card: React.FC<CardProps> = ({ item }) => {
   const { name, status, species, gender, origin, location, image } = item;

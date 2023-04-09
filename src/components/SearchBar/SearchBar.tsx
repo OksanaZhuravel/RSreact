@@ -1,42 +1,29 @@
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { SearchBarProps } from '../../types/types';
 
-function SearchBar() {
-  const [searchValue, setSearchValue] = useState<string>('');
-
-  useEffect(() => {
-    const searchValue = localStorage.getItem('searchValue');
-    if (searchValue) {
-      setSearchValue(searchValue);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('searchValue', searchValue);
-  }, [searchValue]);
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value);
+const SearchBar: React.FC<SearchBarProps> = ({ filter, setFilter }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilter({ ...filter, query: e.target.value });
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log('searchValue:', searchValue);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
   };
 
   return (
     <form className="search" onSubmit={handleSubmit}>
       <input
+        value={filter.query}
+        onChange={handleInputChange}
+        placeholder="Search name..."
         type="text"
         className="search__input"
-        placeholder="Search"
-        value={searchValue}
-        onChange={handleInputChange}
       />
       <button type="submit" className="search__button">
         search
       </button>
     </form>
   );
-}
+};
 
 export default SearchBar;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import Card from '../../components/Card/Card';
 import { DataApi } from '../../types/types';
@@ -8,18 +8,18 @@ function Layout() {
   const [data, setData] = useState<DataApi[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  useEffect(() => {
+  const [filter, setFilter] = useState({ query: '' });
+  const fetchData = (query: string) => {
     setIsLoading(true);
-    fetch('https://rickandmortyapi.com/api/character')
+
+    fetch(`https://rickandmortyapi.com/api/character?name=${query}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error('Ошибка HTTP ' + response.status);
+          throw new Error('HTTP Error ' + response.status);
         }
         return response.json();
       })
       .then((data) => {
-        // console.log(data.results);
-
         setData(data.results);
         setError(null);
       })
@@ -28,11 +28,16 @@ function Layout() {
         setError(error.message);
         setIsLoading(false);
       });
-  }, []);
+  };
 
+  useEffect(() => {
+    fetchData(filter.query);
+    setIsLoading(false);
+  }, [filter.query]);
   return (
     <div className="main">
-      <SearchBar />
+      <SearchBar filter={filter} setFilter={setFilter} fetchSearchData={fetchData} />
+
       <div className="main__cards" data-testid="cards-list">
         {data.map((item) => {
           return <Card item={item} key={item.id} />;

@@ -1,17 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Notification from './Notification ';
-
-interface FormData {
-  name: string;
-  surname: string;
-  birthday: string;
-  favoriteColor: string;
-  allowNameUsage: boolean;
-  gender: string;
-  file: FileList | null;
-}
-
+import { FormData } from '../../types/types';
 const Form = (): JSX.Element => {
   const {
     register,

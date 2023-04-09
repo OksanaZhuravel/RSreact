@@ -8,8 +8,8 @@ function Header() {
 
   useEffect(() => {
     const pages = {
-      '/': 'Shop',
-      '/about': 'About',
+      '/': 'Rick and Morty',
+      '/about': 'About Rick and Morty',
       '/form': 'Form',
     };
     const titleName = pages[location.pathname as keyof typeof pages];
@@ -17,7 +17,7 @@ function Header() {
   }, [location.pathname]);
 
   const updatePage = () => {
-    setTitle(location.pathname === '/' ? 'Shop' : '');
+    setTitle(location.pathname === '/' ? 'Rick and Morty' : '');
   };
 
   return (
