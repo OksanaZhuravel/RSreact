@@ -1,57 +1,38 @@
-import React from 'react';
-import './card.scss';
+import { CardProps } from '../../types/types';
+import Modal from '../../components/Modal/Modal';
+import { useState } from 'react';
 
-interface cardProps {
-  title: string;
-  description: string;
-  thumbnail: string;
-  price: number;
-  discountPercentage: number;
-  category: string;
-  brand: string;
-  rating: number;
-}
-
-class Card extends React.Component<cardProps> {
-  constructor(props: cardProps) {
-    super(props);
-  }
-  render() {
-    return (
-      <>
-        <div className="card" data-testid="card">
-          <img className="card__image" src={this.props.thumbnail} alt={this.props.title} />
-          <div className="card__info">
-            <h3 className="card__title">{this.props.title}</h3>
-            <p>
-              <span className="card__text">Category:</span>
-              <span className="card__category"> {this.props.category}</span>
-            </p>
-            <p>
-              <span className="card__text">Brand:</span>
-              <span className="card__brand"> {this.props.brand}</span>
-            </p>
-            <p>
-              <span className="card__text">Description:</span>
-              <span className="card__description"> {this.props.description}</span>
-            </p>
-            <p>
-              <span className="card__text">Raiting:</span>
-              <span className="card__rating"> {this.props.rating}</span>
-            </p>
-            <p>
-              <span className="card__text">price:</span>
-              <span className="card__price"> {this.props.price} $</span>
-            </p>
-            <p>
-              <span className="card__text">discount:</span>
-              <span className="card__discount"> {this.props.discountPercentage} %</span>
-            </p>
-          </div>
+const Card: React.FC<CardProps> = ({ item }) => {
+  const { name, status, species, gender, origin, location, image } = item;
+  const [modal, setModal] = useState(false);
+  return (
+    <div className="card">
+      <img src={image} alt={name} />
+      <h3>{name}</h3>
+      <button onClick={() => setModal(true)}>Information</button>
+      <Modal visible={modal} setVisible={setModal}>
+        <img src={image} alt={name} />
+        <h3>{name}</h3>
+        <div className="card__inner">
+          <p>
+            Status: <span className="card__color">{status}</span>
+          </p>
+          <p>
+            Species: <span className="card__color">{species}</span>
+          </p>
+          <p>
+            Gender: <span className="card__color">{gender}</span>
+          </p>
+          <p>
+            Origin: <span className="card__color">{origin.name}</span>
+          </p>
+          <p>
+            Location: <span className="card__color">{location.name}</span>
+          </p>
         </div>
-      </>
-    );
-  }
-}
+      </Modal>
+    </div>
+  );
+};
 
 export default Card;
