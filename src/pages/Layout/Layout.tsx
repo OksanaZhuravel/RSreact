@@ -9,45 +9,74 @@ function Layout() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [filter, setFilter] = useState({ query: '' });
-  const fetchData = (query: string) => {
+
+  const fetchData = async (query: string) => {
     setIsLoading(true);
 
-    fetch(`https://rickandmortyapi.com/api/character?name=${query}`)
-      .then((response) => {
-        if (!response.ok) {
+    try {
+      const response = await fetch(`https://rickandmortyapi.com/api/character?name=${query}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          setError('Not found');
+        } else {
           throw new Error('HTTP Error ' + response.status);
         }
-        return response.json();
-      })
-      .then((data) => {
+      } else {
+        const data = await response.json();
         setData(data.results);
         setError(null);
-      })
-      .catch((error) => {
-        console.error(error);
-        setError(error.message);
-        setIsLoading(false);
-      });
+      }
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchData(filter.query);
-    setIsLoading(false);
+    const timeoutId = setTimeout(() => {
+      fetchData(filter.query);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [filter.query]);
+
   return (
     <div className="main">
-      <SearchBar filter={filter} setFilter={setFilter} fetchSearchData={fetchData} />
-
-      <div className="main__cards" data-testid="cards-list">
-        {data.map((item) => {
-          return <Card item={item} key={item.id} />;
-        })}
-      </div>
-      {error && <h1> {error}</h1>}
       {isLoading && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 50 }}>
           <Loader />
         </div>
+      )}
+
+      {!isLoading && !error && (
+        <>
+          <SearchBar filter={filter} setFilter={setFilter} fetchSearchData={fetchData} />
+          {data.length > 0 ? (
+            <div className="main__cards" data-testid="cards-list">
+              {data.map((item) => {
+                return <Card item={item} key={item.id} />;
+              })}
+            </div>
+          ) : (
+            <>
+              <SearchBar filter={filter} setFilter={setFilter} fetchSearchData={fetchData} />
+              <h1 style={{ textAlign: 'center', marginTop: '50px', color: '#d3c7de' }}>
+                No data available
+              </h1>
+            </>
+          )}
+        </>
+      )}
+
+      {error && (
+        <>
+          <SearchBar filter={filter} setFilter={setFilter} fetchSearchData={fetchData} />
+          <h1 style={{ textAlign: 'center', marginTop: '50px', color: '#d3c7de' }}>{error}</h1>{' '}
+        </>
       )}
     </div>
   );
